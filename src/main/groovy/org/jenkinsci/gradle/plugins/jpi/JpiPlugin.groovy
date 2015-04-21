@@ -135,17 +135,14 @@ class JpiPlugin implements Plugin<Project> {
 
         configureRepositories(gradleProject)
         configureConfigurations(gradleProject)
-
-        // manifest in the JAR file
-        gradleProject.afterEvaluate {
-            Jar jar = gradleProject.tasks.getByName(JavaPlugin.JAR_TASK_NAME) as Jar
-            jar.manifest {
-                attributes(attributesToMap(new JpiManifest(gradleProject).mainAttributes))
-            }
-        }
-
         configureTestResources(gradleProject)
         configurePublishing(gradleProject)
+
+        // add manifest to the JAR file
+        gradleProject.afterEvaluate {
+            Jar jarTask = gradleProject.tasks.getByName(JavaPlugin.JAR_TASK_NAME) as Jar
+            jarTask.manifest.attributes(attributesToMap(new JpiManifest(gradleProject).mainAttributes))
+        }
 
         // generate test hpl manifest for the current plugin, to be used during unit test
         def generateTestHpl = gradleProject.tasks.create('generate-test-hpl') << {
